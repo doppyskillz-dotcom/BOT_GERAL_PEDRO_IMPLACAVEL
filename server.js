@@ -47,7 +47,6 @@ function logAccess(msg) {
 
 // ---------- Utilitários ----------
 function serverNow() {
-  // Horário oficial do servidor (UTC) — não depende do relógio do cliente
   return new Date();
 }
 
@@ -85,6 +84,18 @@ function requireAdmin(req, res, next) {
 app.use(cors());
 app.use(express.json({ limit: '256kb' }));
 
+// ---------- Servir Frontend / Interface Gráfica ----------
+app.use(express.static(path.join(__dirname)));
+
+app.get('/', (req, res) => {
+  const htmlPath = path.join(__dirname, 'BOT_GERAL_IA_Predict_Aviator.html');
+  if (fs.existsSync(htmlPath)) {
+    res.sendFile(htmlPath);
+  } else {
+    res.status(404).send('Interface gráfica (HTML) não encontrada no servidor.');
+  }
+});
+
 // ---------- Health & Tempo do Servidor ----------
 app.get('/api/health', (req, res) => {
   res.json({
@@ -108,7 +119,6 @@ app.post('/api/license/validate', (req, res) => {
 
   const k = key.trim().toUpperCase();
 
-  // Código ADM — só confirma que é admin; não "abre o bot" como cliente
   if (ADM_CODE && k === ADM_CODE) {
     logAccess(`ADM_CODE usado (HWID=${hwid || 'n/a'})`);
     return res.json({
@@ -144,7 +154,6 @@ app.post('/api/license/validate', (req, res) => {
     });
   }
 
-  // HWID binding
   if (lic.hwid && hwid && lic.hwid !== hwid) {
     logAccess(`HWID_MISMATCH key=${k} esperado=${lic.hwid} recebido=${hwid}`);
     return res.status(403).json({
@@ -154,7 +163,6 @@ app.post('/api/license/validate', (req, res) => {
     });
   }
 
-  // Primeiro acesso / atualizar
   const agora = serverNow().toISOString();
   if (!lic.hwid && hwid) {
     lic.hwid = hwid;
