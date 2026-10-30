@@ -325,7 +325,7 @@ app.post('/api/admin/payments', requireAdmin, (req, res) => {
 });
 
 // ---------- Arranque ----------
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`BOT GERAL IA License API a correr em http://localhost:${PORT}`);
   console.log(`Health: http://localhost:${PORT}/api/health`);
   console.log(`ADM protegido por header x-admin-code`);
